@@ -8,7 +8,7 @@ import seaborn as sns
 
 from keras.models import Sequential, load_model
 from keras.initializers import he_normal
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 from keras import regularizers
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
@@ -101,13 +101,18 @@ def run():
     # Model
     # He et al., http://arxiv.org/abs/1502.01852 (initializer)
     model = Sequential()
-    model.add(Dense(64, input_dim=5,
+    model.add(Dense(128, input_dim=5,
                     kernel_initializer=he_normal(seed=1),
-                    # kernel_regularizer=regularizers.l2(0.),
+                    # kernel_regularizer=regularizers.l2(0.01),
                     activation='relu'))
-    model.add(Dense(64,
+    # model.add(Dropout(0.2))
+    model.add(Dense(128,
                     kernel_initializer=he_normal(seed=1),
                     activation='relu'))
+    # model.add(Dropout(0.2))
+    # model.add(Dense(128,
+    #                 kernel_initializer=he_normal(seed=1),
+    #                 activation='relu'))
     model.add(Dense(1,
                     kernel_initializer=he_normal(seed=1)))
     model.compile(loss='mean_squared_error', optimizer='adam')
@@ -126,7 +131,7 @@ def run():
     #                     callbacks=callbacks_list)
 
 
-    history = model.fit(X_train, Y_train, epochs=1000, batch_size=300, verbose=1,
+    history = model.fit(X_train, Y_train, epochs=2000, batch_size=300, verbose=1,
                         # validation_split=0.2,
                         validation_data=(X_test, Y_test),
                         callbacks=callbacks_list)
@@ -161,7 +166,7 @@ def run():
 def plot_model_history(history):
     hist = pd.DataFrame(history.history, index=history.epoch)
     # hist["val_AMK"] = 133.0267; hist["AMK"] = 72.9650  # windpw
-    hist["val_AMK"] = 56.0239  #; hist["AMK"] = 72.9650  # windpw
+    hist["val_AMK"] = 56.0239; hist["AMK"] = 37.76508  # WT1
     hist_ax = hist.plot()
     # hist_ax.set_ylim(50, 300) # windpw
     hist_ax.set_ylim(0, 200)  # WT1

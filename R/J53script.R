@@ -61,7 +61,7 @@ plot(y ~ V, data = WT1_data)
 # Randomise
 set.seed(1)
 WT1_data <- WT1_data[sample(nrow(WT1_data)),]
-write.csv(WT1_data["seqNo"], file="WT1_seqNo_order.csv", row.names = FALSE)
+#write.csv(WT1_data["seqNo"], file="WT1_seqNo_order.csv", row.names = FALSE)
 train_size <- floor(nrow(WT1_data) * 0.9)  # 42787
 test_size <- nrow(WT1_data) - train_size # 4755
 
@@ -97,8 +97,8 @@ for(i in 1:k){
   rmse_vec[i] <- rmse
 }
 cat(rmse_vec)
-cat(mean(rmse_vec))
-cat(sd(rmse_vec))
+cat(mean(rmse_vec))  # 7.432424
+cat(sd(rmse_vec))    # 0.1190444
 
 ## WINDPW
 
