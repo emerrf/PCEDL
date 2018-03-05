@@ -11,6 +11,7 @@ from keras.initializers import he_normal
 from keras.layers import Dense, Dropout
 from keras import regularizers
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.optimizers import Adam
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Disable GPU
 
@@ -118,6 +119,7 @@ def run():
     model.add(Dropout(4/64))
     model.add(Dense(1,
                     kernel_initializer=he_normal(seed=1)))
+    # opt = Adam(lr=0.00025, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., amsgrad=False)
     model.compile(loss='mean_squared_error', optimizer='Nadam')
     print(model.summary())
 
