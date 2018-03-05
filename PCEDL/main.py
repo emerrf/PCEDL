@@ -101,28 +101,31 @@ def run():
     # Model
     # He et al., http://arxiv.org/abs/1502.01852 (initializer)
     model = Sequential()
-    model.add(Dense(128, input_dim=5,
+    model.add(Dense(64, input_dim=5,
                     kernel_initializer=he_normal(seed=1),
-                    # kernel_regularizer=regularizers.l2(0.01),
+                    # kernel_regularizer=regularizers.l2(0.1),
                     activation='relu'))
-    # model.add(Dropout(0.2))
-    model.add(Dense(128,
+    model.add(Dropout(4/64))
+    model.add(Dense(64,
                     kernel_initializer=he_normal(seed=1),
+                    # kernel_regularizer=regularizers.l2(0.1),
                     activation='relu'))
-    # model.add(Dropout(0.2))
-    # model.add(Dense(128,
-    #                 kernel_initializer=he_normal(seed=1),
-    #                 activation='relu'))
+    model.add(Dropout(4/64))
+    model.add(Dense(64,
+                    kernel_initializer=he_normal(seed=1),
+                    # kernel_regularizer=regularizers.l2(0.1),
+                    activation='relu'))
+    model.add(Dropout(4/64))
     model.add(Dense(1,
                     kernel_initializer=he_normal(seed=1)))
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.compile(loss='mean_squared_error', optimizer='Nadam')
     print(model.summary())
 
     checkpoint = ModelCheckpoint("model.hdf5", monitor='val_loss', verbose=0,
                                  save_best_only=True, mode='min')
 
     # check 5 epochs
-    early_stop = EarlyStopping(monitor='val_loss', patience=1000, mode='min',
+    early_stop = EarlyStopping(monitor='val_loss', patience=300, mode='min',
                                min_delta=10, verbose=1)
 
     callbacks_list = [checkpoint]#, #early_stop]
@@ -130,20 +133,19 @@ def run():
     # history = model.fit(x, y, validation_data=(x_test, y_test), epochs=100,
     #                     callbacks=callbacks_list)
 
-
-    history = model.fit(X_train, Y_train, epochs=2000, batch_size=300, verbose=1,
+    # model = load_model("model.hdf5")
+    history = model.fit(X_train, Y_train, epochs=300, batch_size=30, verbose=1,
                         # validation_split=0.2,
                         validation_data=(X_test, Y_test),
                         callbacks=callbacks_list)
 
-    # """
-    # Best epoch: 996
-    # Min Val MSE: 79.02872171010881
-    # Min Val RMSE: 8.88980999291373
-    # Test MSE: 79.02871965753147
-    # Test RMSE: 8.889809877468217
-    # Time: 160.28177285194397 # CPU
-    # Time: 534.9832010269165  # GPU
+    # """ hist_128_128_batch300_adam_valTest_henormal_2k
+    # Best epoch: 1163
+    # Min Val MSE: 60.596036820757654
+    # Min Val RMSE: 7.784345625725881
+    # Test MSE: 60.59603443079166
+    # Test RMSE: 7.784345472214839
+    # Time: 526.6517767906189
     # """
 
     # from keras.utils import plot_model
