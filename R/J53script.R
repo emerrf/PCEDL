@@ -49,7 +49,7 @@ read_J53_data <- function(path) {
 }
 
 
-setwd("C:/Users/emerrf/Documents/GitHub/PCEDL_local/R")
+setwd("C:/Users/emerrf/Documents/GitHub/PCEDL/R")
 dirpath <- "../PCEDL/data/J53/"
 J53_data <- read_J53_data(dirpath)
 
@@ -57,6 +57,10 @@ J53_data <- read_J53_data(dirpath)
 WT1_data <- subset(J53_data, subset = WT == "WT1", select = -c(H, Sa, WT, Type))
 head(WT1_data)
 plot(y ~ V, data = WT1_data)
+
+# Check where the windpw comes from
+id.cov <- c('V', 'D', 'rho', 'I', 'Sb')
+table(plyr::match_df(J53_data[,c(id.cov, "WT", "seqNo")],windpw[,id.cov])$WT)
 
 # Randomise
 set.seed(1)
