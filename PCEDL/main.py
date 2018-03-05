@@ -8,9 +8,10 @@ import seaborn as sns
 
 from keras.models import Sequential, load_model
 from keras.initializers import he_normal
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 from keras import regularizers
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.optimizers import Adam
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Disable GPU
 
@@ -60,7 +61,7 @@ def read_J53_data(dir):
 
 def run():
 
-    dataset = "WT1"  # windpw or WT1
+    dataset = "windpw"  # windpw or WT1
 
     if(dataset == "WT1"):
         # Load J53 Data
@@ -103,14 +104,19 @@ def run():
     model = Sequential()
     model.add(Dense(64, input_dim=5,
                     kernel_initializer=he_normal(seed=1),
-                    # kernel_regularizer=regularizers.l2(0.),
+                    # kernel_regularizer=regularizers.l2(0.1),
                     activation='relu'))
-    model.add(Dense(64,
-                    kernel_initializer=he_normal(seed=1),
-                    activation='relu'))
+    # model.add(Dropout(0.05))
+    # model.add(Dense(32,
+    #                 kernel_initializer=he_normal(seed=1),
+    #                 # kernel_regularizer=regularizers.l2(0.1),
+    #                 activation='relu'))
+    # model.add(Dropout(0.05))
     model.add(Dense(1,
                     kernel_initializer=he_normal(seed=1)))
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    opt = Adam(lr=0.00025, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., amsgrad=False)
+
+    model.compile(loss='mean_squared_error', optimizer=opt)
     print(model.summary())
 
     checkpoint = ModelCheckpoint("model.hdf5", monitor='val_loss', verbose=0,
@@ -126,7 +132,7 @@ def run():
     #                     callbacks=callbacks_list)
 
 
-    history = model.fit(X_train, Y_train, epochs=1000, batch_size=300, verbose=1,
+    history = model.fit(X_train, Y_train, epochs=3000, batch_size=3, verbose=1,
                         # validation_split=0.2,
                         validation_data=(X_test, Y_test),
                         callbacks=callbacks_list)
@@ -139,6 +145,16 @@ def run():
     # Test RMSE: 8.889809877468217
     # Time: 160.28177285194397 # CPU
     # Time: 534.9832010269165  # GPU
+    # Time: 444.0515308380127 # 24core
+    #
+    # """
+    # """hist_64_batch30_nadam_henormal.png
+    # Epoch: 2416
+    # Min Val MSE: 120.34393005371093
+    # Min Val RMSE: 10.970138105498533
+    # Test MSE: 120.34392826142766
+    # Test RMSE: 10.970138023809348
+    # Time: 3623.863386631012
     # """
 
     # from keras.utils import plot_model
@@ -160,11 +176,11 @@ def run():
 
 def plot_model_history(history):
     hist = pd.DataFrame(history.history, index=history.epoch)
-    # hist["val_AMK"] = 133.0267; hist["AMK"] = 72.9650  # windpw
-    hist["val_AMK"] = 56.0239  #; hist["AMK"] = 72.9650  # windpw
+    hist["val_AMK"] = 133.0267; hist["AMK"] = 72.9650  # windpw
+    #hist["val_AMK"] = 56.0239  #; hist["AMK"] = 72.9650
     hist_ax = hist.plot()
-    # hist_ax.set_ylim(50, 300) # windpw
-    hist_ax.set_ylim(0, 200)  # WT1
+    hist_ax.set_ylim(50, 300) # windpw
+    #hist_ax.set_ylim(0, 200)  # WT1
     best_epoch = hist[hist["val_loss"] == hist["val_loss"].min()]
     min_mse = best_epoch["val_loss"]
     print("Best epoch: {}\nMin Val MSE: {}\nMin Val RMSE: {}".format(
