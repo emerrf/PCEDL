@@ -73,11 +73,13 @@ df.tr <- WT1_data[1:train_size, ]
 df.ts <- WT1_data[(train_size+1):(train_size+test_size), ]
 id.cov <- c('V', 'D', 'rho', 'I', 'Sb')
 pred <- kp.pwcurv(df.tr$y, df.tr[, id.cov], df.ts[, id.cov], id.dir = 2)
+#write.csv(data.frame("seqNo"=df.ts$seqNo, "WT1_test_pred_AMK"=pred), file="WT1_test_pred_AMK.csv", row.names = FALSE)
 rmse <- sqrt(mean((df.ts$y - pred)^2))
 mse = rmse^2
 # Assuming Vestas V80/1800 with rated power of 1.8MW
 rmse_paper = rmse/100*1800 # W
 cat(paste("MSE:", mse, "RMSE:", rmse, "RMSE Paper:", rmse_paper))
+# MSE: 56.0239254900117 RMSE: 7.48491319188217 RMSE Paper: 134.728437453879
 
 # KFold cross validation
 WT1_data <- subset(J53_data, subset = WT == "WT1", select = -c(H, Sa, WT, Type))
@@ -121,6 +123,7 @@ if(use_zscores){
 }
 
 pred <- kp.pwcurv(df.tr$y, df.tr[, id.cov], df.ts[, id.cov], id.dir = 2)
+#write.csv(data.frame("windpw_test_pred_AMK"=pred), file="windpw_test_pred_AMK.csv", row.names = FALSE)
 sqrt(mean((df.ts$y - pred)^2))
 plot(pred, df.ts$y - pred)
 
